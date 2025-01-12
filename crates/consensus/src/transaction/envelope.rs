@@ -419,6 +419,9 @@ impl Decodable for TxEnvelope {
 
 impl Decodable2718 for TxEnvelope {
     fn typed_decode(ty: u8, buf: &mut &[u8]) -> Eip2718Result<Self> {
+
+        println!("TxEnvelope, {}", ty);
+
         let ty = ty.try_into().map_err(|_| alloy_rlp::Error::Custom("unexpected tx type"))?;
 
         println!("TxEnvelope, {}", ty);
