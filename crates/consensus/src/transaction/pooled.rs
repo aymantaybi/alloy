@@ -336,6 +336,7 @@ impl Encodable2718 for PooledTransaction {
 
 impl Decodable2718 for PooledTransaction {
     fn typed_decode(ty: u8, buf: &mut &[u8]) -> Eip2718Result<Self> {
+        println!("PooledTransaction, {}", ty);
         match ty.try_into().map_err(|_| alloy_rlp::Error::Custom("unexpected tx type"))? {
             TxType::Eip2930 => Ok(TxEip2930::rlp_decode_signed(buf)?.into()),
             TxType::Eip1559 => Ok(TxEip1559::rlp_decode_signed(buf)?.into()),
