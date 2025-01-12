@@ -100,6 +100,7 @@ impl TryFrom<u8> for TxType {
             2 => Self::Eip1559,
             3 => Self::Eip4844,
             4 => Self::Eip7702,
+            100 => Self::Sponsored,
             _ => return Err(Eip2718Error::UnexpectedType(value)),
         })
     }
