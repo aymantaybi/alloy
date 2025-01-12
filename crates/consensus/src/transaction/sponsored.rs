@@ -58,17 +58,17 @@ pub struct TxSponsored {
     /// in the case of contract creation, as an endowment
     /// to the newly created account; formally Tv.
     pub value: U256,
-    /// Sponsored transaction fields.
-    pub expired_time: u64,
-    pub payer_v: U256,
-    pub payer_r: U256,
-    pub payer_s: U256,
     /// Input has two uses depending if transaction is Create or Call (if `to` field is None or
     /// Some). pub init: An unlimited size byte array specifying the
     /// EVM-code for the account initialisation procedure CREATE,
     /// data: An unlimited size byte array specifying the
     /// input data of the message call, formally Td.
     pub input: Bytes,
+    /// Sponsored transaction fields.
+    pub expired_time: u64,
+    pub payer_v: U256,
+    pub payer_r: U256,
+    pub payer_s: U256,
 }
 
 impl TxSponsored {
