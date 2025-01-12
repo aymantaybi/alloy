@@ -513,6 +513,13 @@ impl TransactionRequest {
                 self.blob_versioned_hashes = None;
                 self.sidecar = None;
             }
+            TxType::Sponsored => {
+           
+                self.max_fee_per_blob_gas = None;
+                self.blob_versioned_hashes = None;
+                self.sidecar = None;
+                self.access_list = None;
+            }
         }
     }
 
@@ -552,6 +559,7 @@ impl TransactionRequest {
             TxType::Eip1559 => self.complete_1559(),
             TxType::Eip4844 => self.complete_4844(),
             TxType::Eip7702 => self.complete_7702(),
+            TxType::Sponsored => todo!(),
         } {
             Err((pref, missing))
         } else {
@@ -655,6 +663,7 @@ impl TransactionRequest {
             TxType::Eip1559 => self.complete_1559().ok(),
             TxType::Eip4844 => self.complete_4844().ok(),
             TxType::Eip7702 => self.complete_7702().ok(),
+            TxType::Sponsored => todo!(),
         }?;
         Some(pref)
     }
@@ -675,6 +684,7 @@ impl TransactionRequest {
             // `sidecar` is a hard requirement since this must be a _sendable_ transaction.
             TxType::Eip4844 => self.build_4844_with_sidecar().expect("checked)").into(),
             TxType::Eip7702 => self.build_7702().expect("checked)").into(),
+            TxType::Sponsored => todo!(),
         })
     }
 
@@ -696,6 +706,7 @@ impl TransactionRequest {
             TxType::Eip1559 => self.clone().build_1559().map(Into::into),
             TxType::Eip4844 => self.clone().build_4844_variant().map(Into::into),
             TxType::Eip7702 => self.clone().build_7702().map(Into::into),
+            TxType::Sponsored => todo!(),
         }
         .map_err(|msg| self.into_tx_err(msg))
     }
@@ -900,6 +911,7 @@ impl From<TypedTransaction> for TransactionRequest {
             TypedTransaction::Eip1559(tx) => tx.into(),
             TypedTransaction::Eip4844(tx) => tx.into(),
             TypedTransaction::Eip7702(tx) => tx.into(),
+            TypedTransaction::Sponsored(_) => todo!(),
         }
     }
 }
@@ -992,6 +1004,7 @@ impl From<TxEnvelope> for TransactionRequest {
                     tx.strip_signature().into()
                 }
             }
+            TxEnvelope::Sponsored(tx) => todo!(),
         }
     }
 }

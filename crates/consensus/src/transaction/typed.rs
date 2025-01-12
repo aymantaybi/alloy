@@ -6,6 +6,8 @@ use crate::{
     Transaction, TxEip1559, TxEip2930, TxEip7702, TxEnvelope, TxLegacy, TxType, Typed2718,
 };
 
+use super::TxSponsored;
+
 /// The TypedTransaction enum represents all Ethereum transaction request types.
 ///
 /// Its variants correspond to specific allowed transactions:
@@ -40,6 +42,9 @@ pub enum TypedTransaction {
     /// EIP-7702 transaction
     #[cfg_attr(feature = "serde", serde(rename = "0x04", alias = "0x4"))]
     Eip7702(TxEip7702),
+    /// Sponsored transaction
+    #[cfg_attr(feature = "serde", serde(rename = "0x64", alias = "0x64"))]
+    Sponsored(TxSponsored),
 }
 
 impl From<TxLegacy> for TypedTransaction {
@@ -92,6 +97,8 @@ impl From<TxEnvelope> for TypedTransaction {
             TxEnvelope::Eip1559(tx) => Self::Eip1559(tx.strip_signature()),
             TxEnvelope::Eip4844(tx) => Self::Eip4844(tx.strip_signature()),
             TxEnvelope::Eip7702(tx) => Self::Eip7702(tx.strip_signature()),
+            TxEnvelope::Sponsored(tx) => Self::Sponsored(tx.strip_signature()),
+
         }
     }
 }
@@ -106,6 +113,7 @@ impl TypedTransaction {
             Self::Eip1559(_) => TxType::Eip1559,
             Self::Eip4844(_) => TxType::Eip4844,
             Self::Eip7702(_) => TxType::Eip7702,
+            Self::Sponsored(_) => TxType::Sponsored,
         }
     }
 
@@ -151,6 +159,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.chain_id(),
             Self::Eip4844(tx) => tx.chain_id(),
             Self::Eip7702(tx) => tx.chain_id(),
+            Self::Sponsored(tx) => tx.chain_id(),
         }
     }
 
@@ -162,6 +171,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.nonce(),
             Self::Eip4844(tx) => tx.nonce(),
             Self::Eip7702(tx) => tx.nonce(),
+            Self::Sponsored(tx) => tx.nonce(),
         }
     }
 
@@ -173,6 +183,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.gas_limit(),
             Self::Eip4844(tx) => tx.gas_limit(),
             Self::Eip7702(tx) => tx.gas_limit(),
+            Self::Sponsored(tx) => tx.gas_limit(),
         }
     }
 
@@ -184,6 +195,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.gas_price(),
             Self::Eip4844(tx) => tx.gas_price(),
             Self::Eip7702(tx) => tx.gas_price(),
+            Self::Sponsored(tx) => tx.gas_price(),
         }
     }
 
@@ -195,6 +207,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.max_fee_per_gas(),
             Self::Eip4844(tx) => tx.max_fee_per_gas(),
             Self::Eip7702(tx) => tx.max_fee_per_gas(),
+            Self::Sponsored(tx) => tx.max_fee_per_gas(),
         }
     }
 
@@ -206,6 +219,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.max_priority_fee_per_gas(),
             Self::Eip4844(tx) => tx.max_priority_fee_per_gas(),
             Self::Eip7702(tx) => tx.max_priority_fee_per_gas(),
+            Self::Sponsored(tx) => tx.max_priority_fee_per_gas(),
         }
     }
 
@@ -217,6 +231,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.max_fee_per_blob_gas(),
             Self::Eip4844(tx) => tx.max_fee_per_blob_gas(),
             Self::Eip7702(tx) => tx.max_fee_per_blob_gas(),
+            Self::Sponsored(tx) => tx.max_fee_per_blob_gas(),
         }
     }
 
@@ -228,6 +243,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.priority_fee_or_price(),
             Self::Eip4844(tx) => tx.priority_fee_or_price(),
             Self::Eip7702(tx) => tx.priority_fee_or_price(),
+            Self::Sponsored(tx) => tx.priority_fee_or_price(),
         }
     }
 
@@ -238,6 +254,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.effective_gas_price(base_fee),
             Self::Eip4844(tx) => tx.effective_gas_price(base_fee),
             Self::Eip7702(tx) => tx.effective_gas_price(base_fee),
+            Self::Sponsored(tx) => tx.effective_gas_price(base_fee),
         }
     }
 
@@ -249,6 +266,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.is_dynamic_fee(),
             Self::Eip4844(tx) => tx.is_dynamic_fee(),
             Self::Eip7702(tx) => tx.is_dynamic_fee(),
+            Self::Sponsored(tx) => tx.is_dynamic_fee(),
         }
     }
 
@@ -260,6 +278,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.kind(),
             Self::Eip4844(tx) => tx.kind(),
             Self::Eip7702(tx) => tx.kind(),
+            Self::Sponsored(tx) => tx.kind(),
         }
     }
 
@@ -271,6 +290,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.is_create(),
             Self::Eip4844(tx) => tx.is_create(),
             Self::Eip7702(tx) => tx.is_create(),
+            Self::Sponsored(tx) => tx.is_create(),
         }
     }
 
@@ -282,6 +302,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.value(),
             Self::Eip4844(tx) => tx.value(),
             Self::Eip7702(tx) => tx.value(),
+            Self::Sponsored(tx) => tx.value(),
         }
     }
 
@@ -293,6 +314,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.input(),
             Self::Eip4844(tx) => tx.input(),
             Self::Eip7702(tx) => tx.input(),
+            Self::Sponsored(tx) => tx.input(),
         }
     }
 
@@ -304,6 +326,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.access_list(),
             Self::Eip4844(tx) => tx.access_list(),
             Self::Eip7702(tx) => tx.access_list(),
+            Self::Sponsored(tx) => tx.access_list(),
         }
     }
 
@@ -315,6 +338,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.blob_versioned_hashes(),
             Self::Eip4844(tx) => tx.blob_versioned_hashes(),
             Self::Eip7702(tx) => tx.blob_versioned_hashes(),
+            Self::Sponsored(tx) => tx.blob_versioned_hashes(),
         }
     }
 
@@ -326,6 +350,7 @@ impl Transaction for TypedTransaction {
             Self::Eip1559(tx) => tx.authorization_list(),
             Self::Eip4844(tx) => tx.authorization_list(),
             Self::Eip7702(tx) => tx.authorization_list(),
+            Self::Sponsored(tx) => tx.authorization_list(),
         }
     }
 }
@@ -338,6 +363,7 @@ impl Typed2718 for TypedTransaction {
             Self::Eip1559(tx) => tx.ty(),
             Self::Eip4844(tx) => tx.ty(),
             Self::Eip7702(tx) => tx.ty(),
+            Self::Sponsored(tx) => tx.ty(),
         }
     }
 }
@@ -369,7 +395,7 @@ mod serde_from {
     //!
     //! We serialize via [`TaggedTypedTransaction`] and deserialize via
     //! [`MaybeTaggedTypedTransaction`].
-    use crate::{TxEip1559, TxEip2930, TxEip4844Variant, TxEip7702, TxLegacy, TypedTransaction};
+    use crate::{transaction::TxSponsored, TxEip1559, TxEip2930, TxEip4844Variant, TxEip7702, TxLegacy, TypedTransaction};
 
     #[derive(Debug, serde::Deserialize)]
     #[serde(untagged)]
@@ -401,6 +427,9 @@ mod serde_from {
         /// EIP-7702 transaction
         #[serde(rename = "0x04", alias = "0x4")]
         Eip7702(TxEip7702),
+        /// Sponsored transaction
+        #[serde(rename = "0x64", alias = "0x64")]
+        Sponsored(TxSponsored),
     }
 
     impl From<MaybeTaggedTypedTransaction> for TypedTransaction {
@@ -420,6 +449,7 @@ mod serde_from {
                 TaggedTypedTransaction::Eip1559(signed) => Self::Eip1559(signed),
                 TaggedTypedTransaction::Eip4844(signed) => Self::Eip4844(signed),
                 TaggedTypedTransaction::Eip7702(signed) => Self::Eip7702(signed),
+                TaggedTypedTransaction::Sponsored(signed) => Self::Sponsored(signed),
             }
         }
     }
@@ -432,6 +462,7 @@ mod serde_from {
                 TypedTransaction::Eip1559(signed) => Self::Eip1559(signed),
                 TypedTransaction::Eip4844(signed) => Self::Eip4844(signed),
                 TypedTransaction::Eip7702(signed) => Self::Eip7702(signed),
+                TypedTransaction::Sponsored(signed) => Self::Sponsored(signed),
             }
         }
     }

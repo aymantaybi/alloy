@@ -2,7 +2,7 @@
 //! protocol.
 
 use crate::{
-    transaction::{RlpEcdsaTx, TxEip1559, TxEip2930, TxEip4844, TxLegacy},
+    transaction::{RlpEcdsaTx, TxEip1559, TxEip2930, TxEip4844, TxLegacy, TxSponsored},
     SignableTransaction, Signed, Transaction, TxEip4844WithSidecar, TxEip7702, TxEnvelope, TxType,
     Typed2718,
 };
@@ -38,6 +38,8 @@ pub enum PooledTransaction {
     Eip4844(Signed<TxEip4844WithSidecar>),
     /// A [`TxEip7702`] tagged with type 4.
     Eip7702(Signed<TxEip7702>),
+    /// A [`TxSponsored`] tagged with type 100.
+    Sponsored(Signed<TxSponsored>),
 }
 
 impl PooledTransaction {
@@ -50,6 +52,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.signature_hash(),
             Self::Eip7702(tx) => tx.signature_hash(),
             Self::Eip4844(tx) => tx.signature_hash(),
+            Self::Sponsored(tx) => tx.signature_hash(),
         }
     }
 
@@ -61,6 +64,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.hash(),
             Self::Eip7702(tx) => tx.hash(),
             Self::Eip4844(tx) => tx.hash(),
+            Self::Sponsored(tx) => tx.hash(),
         }
     }
 
@@ -72,6 +76,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.signature(),
             Self::Eip7702(tx) => tx.signature(),
             Self::Eip4844(tx) => tx.signature(),
+            Self::Sponsored(tx) => tx.signature(),
         }
     }
 
@@ -97,6 +102,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.recover_signer(),
             Self::Eip4844(tx) => tx.recover_signer(),
             Self::Eip7702(tx) => tx.recover_signer(),
+            Self::Sponsored(tx) => tx.recover_signer(),
         }
     }
 
@@ -109,6 +115,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.tx().encode_for_signing(out),
             Self::Eip4844(tx) => tx.tx().encode_for_signing(out),
             Self::Eip7702(tx) => tx.tx().encode_for_signing(out),
+            Self::Sponsored(tx) => tx.tx().encode_for_signing(out),
         }
     }
 
@@ -120,6 +127,7 @@ impl PooledTransaction {
             Self::Eip1559(tx) => tx.into(),
             Self::Eip7702(tx) => tx.into(),
             Self::Eip4844(tx) => tx.into(),
+            Self::Sponsored(tx) => tx.into(),
         }
     }
 
@@ -248,6 +256,12 @@ impl From<Signed<TxEip7702>> for PooledTransaction {
     }
 }
 
+impl From<Signed<TxSponsored>> for PooledTransaction {
+    fn from(v: Signed<TxSponsored>) -> Self {
+        Self::Sponsored(v)
+    }
+}
+
 impl Hash for PooledTransaction {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.trie_hash().hash(state);
@@ -289,6 +303,7 @@ impl Encodable2718 for PooledTransaction {
             Self::Eip1559(_) => Some(0x02),
             Self::Eip4844(_) => Some(0x03),
             Self::Eip7702(_) => Some(0x04),
+            Self::Sponsored(_) => Some(0x64),
         }
     }
 
@@ -299,6 +314,7 @@ impl Encodable2718 for PooledTransaction {
             Self::Eip1559(tx) => tx.eip2718_encoded_length(),
             Self::Eip7702(tx) => tx.eip2718_encoded_length(),
             Self::Eip4844(tx) => tx.eip2718_encoded_length(),
+            Self::Sponsored(tx) => tx.eip2718_encoded_length(),
         }
     }
 
@@ -309,6 +325,7 @@ impl Encodable2718 for PooledTransaction {
             Self::Eip1559(tx) => tx.eip2718_encode(out),
             Self::Eip7702(tx) => tx.eip2718_encode(out),
             Self::Eip4844(tx) => tx.eip2718_encode(out),
+            Self::Sponsored(tx) => tx.eip2718_encode(out),
         }
     }
 
@@ -325,6 +342,7 @@ impl Decodable2718 for PooledTransaction {
             TxType::Eip4844 => Ok(TxEip4844WithSidecar::rlp_decode_signed(buf)?.into()),
             TxType::Eip7702 => Ok(TxEip7702::rlp_decode_signed(buf)?.into()),
             TxType::Legacy => Err(Eip2718Error::UnexpectedType(0)),
+            TxType::Sponsored => Ok(TxSponsored::rlp_decode_signed(buf)?.into()),
         }
     }
 
@@ -341,6 +359,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().chain_id(),
             Self::Eip7702(tx) => tx.tx().chain_id(),
             Self::Eip4844(tx) => tx.tx().chain_id(),
+            Self::Sponsored(tx) => tx.tx().chain_id(),
         }
     }
 
@@ -351,6 +370,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().nonce(),
             Self::Eip7702(tx) => tx.tx().nonce(),
             Self::Eip4844(tx) => tx.tx().nonce(),
+            Self::Sponsored(tx) => tx.tx().nonce(),
         }
     }
 
@@ -361,6 +381,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().gas_limit(),
             Self::Eip7702(tx) => tx.tx().gas_limit(),
             Self::Eip4844(tx) => tx.tx().gas_limit(),
+            Self::Sponsored(tx) => tx.tx().gas_limit(),
         }
     }
 
@@ -371,6 +392,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().gas_price(),
             Self::Eip7702(tx) => tx.tx().gas_price(),
             Self::Eip4844(tx) => tx.tx().gas_price(),
+            Self::Sponsored(tx) => tx.tx().gas_price(),
         }
     }
 
@@ -381,6 +403,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().max_fee_per_gas(),
             Self::Eip7702(tx) => tx.tx().max_fee_per_gas(),
             Self::Eip4844(tx) => tx.tx().max_fee_per_gas(),
+            Self::Sponsored(tx) => tx.tx().max_fee_per_gas(),
         }
     }
 
@@ -391,6 +414,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().max_priority_fee_per_gas(),
             Self::Eip7702(tx) => tx.tx().max_priority_fee_per_gas(),
             Self::Eip4844(tx) => tx.tx().max_priority_fee_per_gas(),
+            Self::Sponsored(tx) => tx.tx().max_priority_fee_per_gas(),
         }
     }
 
@@ -401,6 +425,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().max_fee_per_blob_gas(),
             Self::Eip7702(tx) => tx.tx().max_fee_per_blob_gas(),
             Self::Eip4844(tx) => tx.tx().max_fee_per_blob_gas(),
+            Self::Sponsored(tx) => tx.tx().max_fee_per_blob_gas(),
         }
     }
 
@@ -411,6 +436,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().priority_fee_or_price(),
             Self::Eip7702(tx) => tx.tx().priority_fee_or_price(),
             Self::Eip4844(tx) => tx.tx().priority_fee_or_price(),
+            Self::Sponsored(tx) => tx.tx().priority_fee_or_price(),
         }
     }
 
@@ -421,6 +447,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().effective_gas_price(base_fee),
             Self::Eip7702(tx) => tx.tx().effective_gas_price(base_fee),
             Self::Eip4844(tx) => tx.tx().effective_gas_price(base_fee),
+            Self::Sponsored(tx) => tx.tx().effective_gas_price(base_fee),
         }
     }
 
@@ -431,6 +458,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().is_dynamic_fee(),
             Self::Eip7702(tx) => tx.tx().is_dynamic_fee(),
             Self::Eip4844(tx) => tx.tx().is_dynamic_fee(),
+            Self::Sponsored(tx) => tx.tx().is_dynamic_fee(),
         }
     }
 
@@ -441,6 +469,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().kind(),
             Self::Eip7702(tx) => tx.tx().kind(),
             Self::Eip4844(tx) => tx.tx().kind(),
+            Self::Sponsored(tx) => tx.tx().kind(),
         }
     }
 
@@ -451,6 +480,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().is_create(),
             Self::Eip7702(tx) => tx.tx().is_create(),
             Self::Eip4844(tx) => tx.tx().is_create(),
+            Self::Sponsored(tx) => tx.tx().is_create(),
         }
     }
 
@@ -461,6 +491,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().value(),
             Self::Eip7702(tx) => tx.tx().value(),
             Self::Eip4844(tx) => tx.tx().value(),
+            Self::Sponsored(tx) => tx.tx().value(),
         }
     }
 
@@ -471,6 +502,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().input(),
             Self::Eip7702(tx) => tx.tx().input(),
             Self::Eip4844(tx) => tx.tx().input(),
+            Self::Sponsored(tx) => tx.tx().input(),
         }
     }
 
@@ -481,6 +513,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().access_list(),
             Self::Eip7702(tx) => tx.tx().access_list(),
             Self::Eip4844(tx) => tx.tx().access_list(),
+            Self::Sponsored(tx) => tx.tx().access_list(),
         }
     }
 
@@ -491,6 +524,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().blob_versioned_hashes(),
             Self::Eip7702(tx) => tx.tx().blob_versioned_hashes(),
             Self::Eip4844(tx) => tx.tx().blob_versioned_hashes(),
+            Self::Sponsored(tx) => tx.tx().blob_versioned_hashes(),
         }
     }
 
@@ -501,6 +535,7 @@ impl Transaction for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().authorization_list(),
             Self::Eip7702(tx) => tx.tx().authorization_list(),
             Self::Eip4844(tx) => tx.tx().authorization_list(),
+            Self::Sponsored(tx) => tx.tx().authorization_list(),
         }
     }
 }
@@ -513,6 +548,7 @@ impl Typed2718 for PooledTransaction {
             Self::Eip1559(tx) => tx.tx().ty(),
             Self::Eip7702(tx) => tx.tx().ty(),
             Self::Eip4844(tx) => tx.tx().ty(),
+            Self::Sponsored(tx) => tx.tx().ty(),
         }
     }
 }

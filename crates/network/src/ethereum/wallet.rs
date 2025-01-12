@@ -138,6 +138,10 @@ where
                 let sig = self.sign_transaction_inner(sender, &mut t).await?;
                 Ok(t.into_signed(sig).into())
             }
+            TypedTransaction::Sponsored(mut t) => {
+                let sig = self.sign_transaction_inner(sender, &mut t).await?;
+                Ok(t.into_signed(sig).into())
+            }
         }
     }
 }

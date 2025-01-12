@@ -43,6 +43,11 @@ pub enum ReceiptEnvelope<T = Log> {
     /// [EIP-7702]: https://eips.ethereum.org/EIPS/eip-7702
     #[cfg_attr(feature = "serde", serde(rename = "0x4", alias = "0x04"))]
     Eip7702(ReceiptWithBloom<Receipt<T>>),
+     /// Receipt envelope with type flag 100, containing a [Sponsored] receipt.
+    ///
+    /// [Sponsored]: Sponsored
+    #[cfg_attr(feature = "serde", serde(rename = "0x64", alias = "0x64"))]
+    Sponsored(ReceiptWithBloom<Receipt<T>>),
 }
 
 impl<T> ReceiptEnvelope<T> {
@@ -55,6 +60,7 @@ impl<T> ReceiptEnvelope<T> {
             Self::Eip1559(_) => TxType::Eip1559,
             Self::Eip4844(_) => TxType::Eip4844,
             Self::Eip7702(_) => TxType::Eip7702,
+            Self::Sponsored(_) => TxType::Sponsored,
         }
     }
 
@@ -91,7 +97,8 @@ impl<T> ReceiptEnvelope<T> {
             | Self::Eip2930(t)
             | Self::Eip1559(t)
             | Self::Eip4844(t)
-            | Self::Eip7702(t) => Some(t),
+            | Self::Eip7702(t)
+            | Self::Sponsored(t) => Some(t),
         }
     }
 
@@ -103,7 +110,8 @@ impl<T> ReceiptEnvelope<T> {
             | Self::Eip2930(t)
             | Self::Eip1559(t)
             | Self::Eip4844(t)
-            | Self::Eip7702(t) => Some(&t.receipt),
+            | Self::Eip7702(t)
+            | Self::Sponsored(t) => Some(&t.receipt),
         }
     }
 }
@@ -183,6 +191,7 @@ impl Encodable2718 for ReceiptEnvelope {
             Self::Eip1559(_) => Some(TxType::Eip1559 as u8),
             Self::Eip4844(_) => Some(TxType::Eip4844 as u8),
             Self::Eip7702(_) => Some(TxType::Eip7702 as u8),
+            Self::Sponsored(_) => Some(TxType::Sponsored as u8),
         }
     }
 
@@ -208,6 +217,7 @@ impl Decodable2718 for ReceiptEnvelope {
             TxType::Eip4844 => Ok(Self::Eip4844(receipt)),
             TxType::Eip7702 => Ok(Self::Eip7702(receipt)),
             TxType::Legacy => Err(Eip2718Error::UnexpectedType(0)),
+            TxType::Sponsored => Ok(Self::Sponsored(receipt)),
         }
     }
 
