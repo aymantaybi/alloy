@@ -434,3 +434,24 @@ pub(super) mod serde_bincode_compat {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use alloy_eips::eip2718::Decodable2718;
+    use alloy_primitives::hex;
+
+    use crate::{transaction::{PooledTransaction, RlpEcdsaTx}, TxSponsored};
+
+    use super::*;
+
+ 
+
+
+#[test]
+fn test_decode_sponsored_tx() {
+    let tx_bytes = hex!("64f8fb8207e4808504a817c8008504a817c8008301aa12940b7007c13325c48911f73a2dad5fa5dcbf808adc80b844095ea7b30000000000000000000000008a28c188a067dfa6aaec36e2b67b34d2c3042df90fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff8466d29dd201a0a874e9dbb63262b7c3500c3130480c4877cebe91203098b3febc701db4940ff8a05dc5f279f16ae525781b938a71935525f5baa42a7e2207a02f45a0d84e72357501a0697557c9fff6a7a781c4d96c9f9fa7ce6f6e3f8bb37d02544925b9d4e4ae83f7a016cb0fcfcfbfd2d05bde7aac1a7a9b28faa0434851d6a7257f53f6936d72e0b5");
+    let decoded = TxSponsored::eip2718_decode(&mut &tx_bytes[..]).unwrap();
+    dbg!(decoded);
+}
+
+}
