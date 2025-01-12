@@ -334,6 +334,7 @@ impl TxEnvelope {
             Self::Eip1559(tx) => tx.recover_signer(),
             Self::Eip4844(tx) => tx.recover_signer(),
             Self::Eip7702(tx) => tx.recover_signer(),
+            Self::Sponsored(tx) => tx.recover_signer(),
         }
     }
 
